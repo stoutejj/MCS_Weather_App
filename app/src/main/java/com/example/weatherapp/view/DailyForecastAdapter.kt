@@ -30,23 +30,53 @@ class DailyForecastAdapter :
     fun setDailyWeatherData(t : WeatherDataList){
         dataSet = t
         notifyDataSetChanged()
-        Log.d("TESTING TO SEE OUTPUT: ", dataSet.toString())
+        //Log.d("TESTING TO SEE OUTPUT: ", dataSet.toString())
 
     }
 
     override fun getItemCount() = dataSet.list.size
 
     override fun onBindViewHolder(holder: DailyForecastViewHolder, position: Int) {
-        holder.onBind(dataSet,position)
+
 
         //val hourlyRecyclerAdapter = HourlyForecastAdapter()
         //holder.hourlyRecyclerView.layoutManager = GridLayoutManager(holder.hourlyRecyclerView.context,4)
        // Log.d("SETTING THE OUTPUT: ", dataSet.toString())
 
-        val hourlyRecyclerAdapter = HourlyForecastAdapter()
-        holder.hourlyRecyclerView.layoutManager = GridLayoutManager(holder.hourlyRecyclerView.context,4)
-        hourlyRecyclerAdapter.setHourlyWeatherData(dataSet)
+        var currentData : String = dataSet.list[position].dt_txt.substring(0,10)
+        var nextData : String = dataSet.list[position+1].dt_txt.substring(0,10)
 
+
+        if(position != 0){
+            Log.d("POSITION VALUE", position.toString())
+
+
+            if(currentData.equals(nextData)){
+                onBindViewHolder(holder,position+1)
+            }
+            else{
+                val hourlyRecyclerAdapter = HourlyForecastAdapter()
+                holder.onBind(dataSet,position)
+                Log.d("DAILY RECYCLER ", dataSet.list[position].dt_txt + "   " + dataSet.list[position+1].dt_txt)
+                //Log.d("DATE ", dataSet.list[position].dt_txt + "   " + position)
+                holder.hourlyRecyclerView.layoutManager =
+                    GridLayoutManager(holder.hourlyRecyclerView.context, 4)
+                holder.hourlyRecyclerView.adapter = hourlyRecyclerAdapter
+                hourlyRecyclerAdapter.setHourlyWeatherData(dataSet)
+            }
+
+        }
+        else{
+            val hourlyRecyclerAdapter = HourlyForecastAdapter()
+
+            holder.onBind(dataSet,position)
+            Log.d("DAILY RECYCLER ", dataSet.list[position].dt_txt + "   " + dataSet.list[position+1].dt_txt)
+            //Log.d("DATE ", dataSet.list[position].dt_txt + "   " + position)
+            holder.hourlyRecyclerView.layoutManager =
+                GridLayoutManager(holder.hourlyRecyclerView.context, 4)
+            holder.hourlyRecyclerView.adapter = hourlyRecyclerAdapter
+            hourlyRecyclerAdapter.setHourlyWeatherData(dataSet)
+        }
     }
 
     class DailyForecastViewHolder(itemView: View) :
@@ -59,8 +89,10 @@ class DailyForecastAdapter :
 
 
         fun onBind(data: WeatherDataList, position: Int) {
-            tvDate.text = data.list[position].dt_txt
-            Log.d("TESTING TO SEE OUTPUT: ", hourlyRecyclerView.toString())
+            tvDate.text = data.list[position].dt_txt.substring(0,10) + "   " + position
+
+
+
 
 
         }

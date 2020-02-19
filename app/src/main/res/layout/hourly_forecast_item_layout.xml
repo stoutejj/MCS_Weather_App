@@ -9,6 +9,7 @@
             tools:text="Time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:layout_gravity="center"/>
 
         <ImageView
@@ -18,7 +19,7 @@
             android:layout_gravity="center"/>
 
         <TextView
-            android:id="@+id/tv_temperature"
+            android:id="@+id/tv_temp"
             tools:text="Degree"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
