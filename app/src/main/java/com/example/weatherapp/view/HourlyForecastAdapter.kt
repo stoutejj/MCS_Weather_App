@@ -1,5 +1,6 @@
 package com.example.weatherapp.view
 
+import android.graphics.Color
 import android.util.Log
 import android.view.View
 import android.widget.TextView
@@ -8,20 +9,19 @@ import com.example.weatherapp.R
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.example.weatherapp.model.WeatherData
 
-import com.example.weatherapp.model.WeatherDataList
 import com.squareup.picasso.Picasso
-import java.time.Instant
-import java.time.LocalDateTime
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 
 class HourlyForecastAdapter :
     RecyclerView.Adapter<HourlyForecastAdapter.HourlyForecastViewHolder>() {
 
-    var dataSet: WeatherDataList = WeatherDataList(emptyList())
-/*
+    var dataSet: List<WeatherData> = emptyList()
+    var hourlyDataSet: ArrayList<WeatherData> = arrayListOf()
 
-*/
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
             : HourlyForecastViewHolder =
         HourlyForecastViewHolder(
@@ -33,26 +33,34 @@ class HourlyForecastAdapter :
                 )
         )
 
-    fun setHourlyWeatherData(t : WeatherDataList){
+/*    fun setTemp(units: String){
+
+        for (weather in dataSet) {
+            weather.main.temp = when (units) {
+                "metric" -> weather.main.temp - 273.15
+                else ->
+            }
+
+        }
+    }*/
+
+    fun setHourlyWeatherData(date: String, t: List<WeatherData>) {
         dataSet = t
+        for (weather in dataSet) {
+            //println(" Date: " + weather.dt_txt.substring(0, 10) + " time : " + weather.dt_txt.substring(11,19))
+            if (date == weather.dt_txt.substring(0, 10)) {
+                //println("WEATHER: " + weather.main.temp + " ---> " + (weather.main.temp - 273.15).toFloat().roundToInt())
+                hourlyDataSet.add(weather)
+            }
+        }
         notifyDataSetChanged()
     }
 
-    override fun getItemCount() = dataSet.list.size
+    override fun getItemCount() = hourlyDataSet.size
 
     override fun onBindViewHolder(holder: HourlyForecastViewHolder, position: Int) {
 
-        var currentData : String = dataSet.list[position].dt_txt.substring(0,10)
-        var nextData : String = dataSet.list[position+1].dt_txt.substring(0,10)
-
-
-        if(currentData.equals(nextData)) {
-            holder.onBind(dataSet, position)
-            Log.d("HOURLY RECYCLER ", currentData + "   " + nextData + " POSITION" + position.toString())
-        }
-        else {
-            //onBindViewHolder(holder, position+1)
-        }
+        holder.onBind(hourlyDataSet, position)
 
     }
 
@@ -68,19 +76,15 @@ class HourlyForecastAdapter :
         var tvTemp: TextView =
             itemView.findViewById(R.id.tv_temp)
 
-        fun onBind(data: WeatherDataList, position: Int) {
-            tvTime.text = data.list[position].dt_txt
-            tvTemp.text = data.list[position].main.temp.toString()
+        fun onBind(data: List<WeatherData>, position: Int) {
+            tvTime.text = data[position].dt_txt.substring(11,19)
+            tvTemp.text = Math.floor(data[position].main.temp.toDouble()).toInt().toString() + "°"
 
-            var iconCode : String
-                    = data.list[position].weather[0].icon
-           // Log.d("TESTING ICON CODE: ", iconCode)
+            var iconCode: String = data[position].weather[0].icon
 
+            Picasso.get().load("http://openweathermap.org/img/wn/$iconCode@2x.png").into(ivIcon)
 
-            // tvTemp.text = data.list[position].toString()
- Picasso.get().load("http://openweathermap.org/img/wn/$iconCode@2x.png").into(ivIcon)
-            // tvTemp.text = data.list[position].toString()
-
+            //ivIcon.setColorFilter(Color.parseColor("#FFFFFF"))
         }
     }
 }

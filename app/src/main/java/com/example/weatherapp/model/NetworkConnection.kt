@@ -1,40 +1,45 @@
 package com.example.weatherapp.model
 
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface NetworkConnection {
+interface WeatherApiService {
 
     @GET("weather")
-    fun getCurrentWeather(
+    suspend fun getCurrentWeather(
         @Query("zip") zipCode: String,
-        @Query("appid") apiKey: String,
-        @Query("units") units: String
-    ): Call<WeatherDataList>
+        @Query("appid") apiKey: String
+    ): Response<WeatherDataList>
 
     @GET("forecast")
-    fun getWeatherForecast(
+    suspend fun getWeatherForecast(
         @Query("zip") zipCode: String,
-        @Query("appid") apiKey: String,
-        @Query("units") units: String
-    ): Call<WeatherDataList>
+        @Query("appid") apiKey: String
+    ): Response<WeatherDataList>
 
-    //https://samples.openweathermap.org/data/2.5/
-// forecast?zip=232323&appid=b6907d289e10d714a6e88b30761fae22
-}
+//https://api.openweathermap.org/data/2.5/forecast?zip=11221&appid=6f969fe2d1c61da1e7212cd11fcf7a7f
 
-data class Network (var url: String){
-    fun initRetrofit(): NetworkConnection {
-        var retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
+    companion object {
 
-        return retrofit.create(NetworkConnection::class.java)
+        fun create(): WeatherApiService {
+/*
+            val interceptor = HttpLoggingInterceptor()
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+
+            val client = OkHttpClient.Builder().addInterceptor(interceptor).build()*/
+
+            val retrofit =
+                Retrofit.Builder()
+                    .baseUrl("https://api.openweathermap.org/data/2.5/")
+                    //.client(client)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+            return retrofit.create(WeatherApiService::class.java)
+        }
     }
 }
+
